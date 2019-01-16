@@ -11,6 +11,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.networktables.NetworkTable;	//!!!
+import edu.wpi.first.networktables.NetworkTableEntry;	//!!!
+import edu.wpi.first.networktables.NetworkTableInstance;  //!!!
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;	//!!!
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -24,6 +29,13 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  //!!!BEGIN
+  private BuiltInAccelerometer _accel;
+  private NetworkTableEntry _xEntry;
+  private NetworkTableEntry _yEntry;
+  private NetworkTableEntry _zEntry;
+  //!!!END
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -33,6 +45,23 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    //!!!BEGIN
+    _accel = new BuiltInAccelerometer();
+    SmartDashboard.putNumber("X", _accel.getX());
+    SmartDashboard.putNumber("Y", _accel.getY());
+    SmartDashboard.putNumber("Z", _accel.getZ());
+
+    NetworkTableInstance instance = NetworkTableInstance.getDefault();
+    NetworkTable table = instance.getTable("MyTable");
+    _xEntry = table.getEntry("X");
+    _yEntry = table.getEntry("Y");
+    _zEntry = table.getEntry("Z");
+
+    _xEntry.setDouble(0);
+    _yEntry.setDouble(0);
+    _zEntry.setDouble(0);
+    //!!!END
   }
 
   /**
@@ -86,6 +115,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    //!!!BEGIN
+    _accel = new BuiltInAccelerometer();
+    SmartDashboard.putNumber("X", _accel.getX());
+    SmartDashboard.putNumber("Y", _accel.getY());
+    SmartDashboard.putNumber("Z", _accel.getZ());
+
+    _xEntry.setDouble(-_accel.getX());
+    _yEntry.setDouble(-_accel.getY());
+    _zEntry.setDouble(-_accel.getZ());
+    //!!!END
   }
 
   /**
