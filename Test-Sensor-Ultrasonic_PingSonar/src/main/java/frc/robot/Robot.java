@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.wpilibj.Ultrasonic;  //!!!
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -24,6 +26,8 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  Ultrasonic _pingSonar;  //!!!
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -33,6 +37,10 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    _pingSonar = new Ultrasonic(0, 1);  //!!!
+    _pingSonar.setAutomaticMode(true);  //!!!
+
   }
 
   /**
@@ -86,6 +94,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    double range = _pingSonar.getRangeInches(); //!!!
+    SmartDashboard.putNumber("Range", range); //!!!
   }
 
   /**
