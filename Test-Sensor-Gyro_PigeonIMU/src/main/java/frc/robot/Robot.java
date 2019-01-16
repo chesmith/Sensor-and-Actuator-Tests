@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;  //!!!
+import com.ctre.phoenix.sensors.PigeonIMU;  //!!!
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -24,6 +27,9 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  TalonSRX _talon; // !!!
+  PigeonIMU _pigeon;  //!!!
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -33,6 +39,9 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    _talon = new TalonSRX(0); //!!!
+    _pigeon = new PigeonIMU(_talon);  //!!!
   }
 
   /**
@@ -86,6 +95,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    //!!! BEGIN
+    double [] ypr = new double[3];
+    _pigeon.getYawPitchRoll(ypr);
+    SmartDashboard.putNumber("Yaw (pigeon)", ypr[0]);
+    //!!! END
   }
 
   /**
