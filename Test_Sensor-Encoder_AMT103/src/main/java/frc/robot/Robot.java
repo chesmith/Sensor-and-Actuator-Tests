@@ -101,16 +101,22 @@ public class Robot extends TimedRobot {
     //!!! BEGIN
     int count = _encoder.get();
     SmartDashboard.putNumber("count", count);
+
     double raw = _encoder.getRaw();
     SmartDashboard.putNumber("raw", raw);
+    
     double distance = _encoder.getDistance();
     SmartDashboard.putNumber("distance", distance);
+    
     double period = _encoder.getPeriod(); //deprecated in favor of getRate()
     SmartDashboard.putNumber("period", period);
+    
     double rate = _encoder.getRate();
     SmartDashboard.putNumber("rate", rate);
+    
     boolean direction = _encoder.getDirection();
     SmartDashboard.putBoolean("direction", direction);
+    
     boolean stopped = _encoder.getStopped();
     SmartDashboard.putBoolean("stopped", stopped);
     //!!! END
