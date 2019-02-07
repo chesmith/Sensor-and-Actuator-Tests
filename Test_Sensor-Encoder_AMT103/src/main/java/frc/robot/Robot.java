@@ -7,7 +7,15 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.Faults;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.StickyFaults;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import edu.wpi.first.wpilibj.Encoder; //!!!
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,6 +34,8 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   private Encoder _encoder; //!!!
+  private WPI_TalonSRX _talon;
+  private Joystick _joystick;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -38,12 +48,31 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
 
     //!!! BEGIN
-    _encoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
-    _encoder.setMaxPeriod(0.1);
-    _encoder.setMinRate(10);
-    _encoder.setDistancePerPulse(1.0/48);
-    _encoder.setSamplesToAverage(16);
-    _encoder.reset();
+    // _encoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
+    // _encoder.setMaxPeriod(0.1);
+    // _encoder.setMinRate(10);
+    // _encoder.setDistancePerPulse(1.0/48);
+    // _encoder.setSamplesToAverage(16);
+    // _encoder.reset();
+
+    try {
+      _joystick = new Joystick(0);
+    }
+    catch(Exception ex) {
+      System.out.println("Error creating joystick");
+    }
+
+    try {
+      _talon = new WPI_TalonSRX(1);
+    }
+    catch(Exception ex) {
+      System.out.println("Error creating talon");
+    }
+
+    if(_talon != null) {
+      _talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+      _talon.setSelectedSensorPosition(0);
+    }
     //!!! END
   }
 
@@ -93,32 +122,60 @@ public class Robot extends TimedRobot {
     }
   }
 
+  @Override
+  public void teleopInit() {
+    _talon.setSelectedSensorPosition(0);
+  }
   /**
    * This function is called periodically during operator control.
    */
   @Override
   public void teleopPeriodic() {
     //!!! BEGIN
-    int count = _encoder.get();
-    SmartDashboard.putNumber("count", count);
+    if(_joystick != null && _talon != null) {
+      double value = _joystick.getRawAxis(1);
+      SmartDashboard.putNumber("value", value);
+      _talon.set(ControlMode.PercentOutput, value);
 
-    double raw = _encoder.getRaw();
-    SmartDashboard.putNumber("raw", raw);
+      int velocity = _talon.getSelectedSensorVelocity();
+      SmartDashboard.putNumber("velocity", velocity);
+      String direction;
+      if(velocity > 0)
+        direction = "forward";
+      else if(velocity < 0)
+        direction = "back";
+      else
+       direction = "stopped";
+      SmartDashboard.putString("direction", direction);
+      SmartDashboard.putNumber("position", _talon.getSelectedSensorPosition());
+      SmartDashboard.putNumber("RPM", velocity * 600/4096);
+
+      StickyFaults stickyFaults = new StickyFaults();
+      _talon.getStickyFaults(stickyFaults);
+      Faults faults = new Faults();
+      _talon.getFaults(faults);
+    }
     
-    double distance = _encoder.getDistance();
-    SmartDashboard.putNumber("distance", distance);
+    // int count = _encoder.get();
+    // SmartDashboard.putNumber("count", count);
+
+    // double raw = _encoder.getRaw();
+    // SmartDashboard.putNumber("raw", raw);
     
-    double period = _encoder.getPeriod(); //deprecated in favor of getRate()
-    SmartDashboard.putNumber("period", period);
+    // double distance = _encoder.getDistance();
+    // SmartDashboard.putNumber("distance", distance);
     
-    double rate = _encoder.getRate();
-    SmartDashboard.putNumber("rate", rate);
+    // double period = _encoder.getPeriod(); //deprecated in favor of getRate()
+    // SmartDashboard.putNumber("period", period);
     
-    boolean direction = _encoder.getDirection();
-    SmartDashboard.putBoolean("direction", direction);
+    // double rate = _encoder.getRate();
+    // SmartDashboard.putNumber("rate", rate);
     
-    boolean stopped = _encoder.getStopped();
-    SmartDashboard.putBoolean("stopped", stopped);
+    // boolean direction = _encoder.getDirection();
+    // SmartDashboard.putBoolean("direction", direction);
+    
+    // boolean stopped = _encoder.getStopped();
+    // SmartDashboard.putBoolean("stopped", stopped);
     //!!! END
   }
 
